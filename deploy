@@ -5,4 +5,6 @@ rm dist/*
 
 py -m build
 
-py -m twine upload --repository testpypi dist/*
+del dist/*
+py -m twine upload --repository testpypi --skip-existing  dist/*
+py -m twine upload --repository pypi --skip-existing  dist/*

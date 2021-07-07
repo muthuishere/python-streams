@@ -1,7 +1,7 @@
 # functional-streams
-Streams in Python similar like java for writing concise code
+Writing concise functional code in python
 
-![Converting to concise code](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![Converting to concise code](https://github.com/muthuishere/python-streams/blob/main/assets/pythonstreams.png?raw=true)
 
 
 <a target="_blank" href="https://www.youtube.com/watch?v=AcQcxh0VQv0">Demo </a>
