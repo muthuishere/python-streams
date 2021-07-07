@@ -133,7 +133,7 @@ class TestStream(TestCase):
         self.assertIsNotNone(results)
         self.assertIn('Male',results)
         self.assertIn('Female',results)
-    def test_flat_map(self):
+    def test_compose_functions(self):
         is_clothing = lambda product: product['category'] == 'Clothing'
         is_rating_greater_than_three = lambda product: product['overAllRating'] > 3
         reviews_from_product = lambda product: product['reviews']
@@ -147,7 +147,6 @@ class TestStream(TestCase):
         products_of_rating_greater_than_three = (product_stream
                                             .stream()
                                         .filter(is_clothing)
-                                        .peek(lambda data:print("peek is_clothing",data))
                                         .filter(is_rating_greater_than_three)
                                        )
         rating_values = (products_of_rating_greater_than_three
@@ -188,11 +187,11 @@ class TestStream(TestCase):
         print("product_prices_skip_first_five_take_next_two_items", product_prices_skip_first_five_take_next_two_items)
         print("unique_product_prices", unique_product_prices)
         self.assertIsNotNone(rating_values)
-        self.assertEqual(rating_values, [5, 1])
-        self.assertEqual(product_prices, [1199.0, 1199.0, 999.0, 999.0, 899.0, 899.0, 1499.0, 5398.0, 2795.0, 2499.0])
-        self.assertEqual(product_prices_skipped_nine_items, [ 2499.0])
-        self.assertEqual(product_prices_skip_first_five_take_next_two_items, [ 899.0, 1499.0])
-        self.assertEqual(unique_product_prices, [899.0, 2499.0, 999.0, 2795.0, 1199.0, 5398.0, 1499.0])
+        self.assertEqual(rating_values, [5, 1, 2, 2, 1, 3, 2, 1, 2, 5, 1, 4, 1, 5, 5, 1])
+        self.assertEqual(product_prices, [699.0, 1199.0, 1199.0, 999.0, 999.0, 899.0, 899.0, 1499.0, 5398.0, 2795.0, 2499.0])
+        self.assertEqual(product_prices_skipped_nine_items, [2795.0, 2499.0])
+        self.assertEqual(product_prices_skip_first_five_take_next_two_items, [899.0, 899.0])
+        self.assertEqual(unique_product_prices, [899.0, 2499.0, 999.0, 2795.0, 1199.0, 1499.0, 5398.0, 699.0])
         self.assertEqual(total_products, 154)
         self.assertIn('Alisha Solid Women s Cycling Shorts',product_names)
         self.assertIn(5,rating_values)

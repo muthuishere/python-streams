@@ -1,20 +1,34 @@
 # functional-streams
 Streams in Python similar like java for writing concise code
 
-```python
-#Instead of writing like this
+![Converting to concise code](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
 
-list(map(lambda user: user['first_name'],  filter(lambda user:user['salary'] > 80000, filter(lambda product: product['gender'] == 'Male',users))))
+
+<a target="_blank" href="https://www.youtube.com/watch?v=AcQcxh0VQv0">Demo </a>
+
+
+```python
+
+#To Fetch from a list of users
+#       Get their firstname , if their salary greater than 80000 and gender is male
+
+#Instead of writing like this
+users=[]
+
+list(map(lambda user: user['first_name'],  
+         filter(lambda user:user['salary'] > 80000, 
+                filter(lambda product: product['gender'] == 'Male',
+                       users))))
 
 #Write this
 from streams.Stream import Stream
 
-results = (Stream
-           .create(users)
-           .filter(lambda user:user['salary'] > 80000)
-           .filter(lambda product: product['gender'] == 'Male')
-           .map(lambda user: user['first_name'])
-           .asList())
+(Stream
+   .create(users)
+   .filter(lambda user:user['salary'] > 80000)
+   .filter(lambda product: product['gender'] == 'Male')
+   .map(lambda user: user['first_name'])
+   .asList())
 
 #A concise way to write lambdas,functional code in python
 
@@ -77,5 +91,53 @@ results = (Stream
            .asList())
 #['Janessa']
 
+
+#Even you can peek results
+results = (Stream
+           .create(users)
+           .peek(lambda data:print("User",data))
+           .map(lambda user: user['first_name'])
+           .asList())
+#Will list out all users
+
 ```
 
+## Additional Information
+#### Design
+Most of the functions underneath uses the same functions available in python (map uses map , filter uses filter etc..).
+Only we have added wrapper to make the code concise
+
+
+#### Abstractions
+If you need to use partial abstraction , try using stream method. 
+        as the generators used get corrupted by the very first expansion
+For Example
+
+```python
+
+
+stream_of_users = (Stream
+                    .create(users)
+                    )
+
+#The below code wont work
+total_users = (stream_of_users
+               .length())
+
+firstname_of_users = (stream_of_users           
+                           .map(lambda user: user['first_name'])
+                           .asList())
+
+
+#The above code should be rewritten as
+total_users = (stream_of_users
+               .length())
+
+firstname_of_users = (stream_of_users
+                            .stream()
+                           .map(lambda user: user['first_name'])
+                           .asList())
+
+# The stream will make use of copying the items which has been expanded 
+
+```

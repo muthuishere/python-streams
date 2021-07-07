@@ -5,51 +5,55 @@ def generator_from_list(data):
     for row in data:
         yield row
 
+def generator_from_list_of_lists(toplist):
+    for values in toplist:
+        for value in values:
+            yield value
+
 
 class Stream():
     def __init__(self, data):
         self.data = data
 
     def map(self, fn):
-        self.data = map(fn, self.data)
-        return self
+        return Stream(map(fn, self.data))
+
 
     def peek(self, fn):
         results = self.__get_as_value()
         for result in results:
             fn(result)
-        return self
+        return Stream(generator_from_list(results))
+
 
     # Validate Skip is not doing any issues for generator object
     def skip(self, number):
-        for n in range(number):
-            next(self.data)
-        return self
+        results = self.__get_as_value()
+        updated_value = results[number:]
+        return Stream(generator_from_list(updated_value))
 
     def take(self, number):
-        items = []
-        for n in range(number):
-            items.append(next(self.data))
-        self.data = generator_from_list(items)
-        return self
+        results = self.__get_as_value()
+        updated_value = results[:number]
+        return Stream(generator_from_list(updated_value))
 
     def distinct(self):
         results = self.__get_as_value()
         unique_items = list(set(results))
-        self.data = generator_from_list(unique_items)
-        return self
+        return Stream(generator_from_list(unique_items))
 
     def length(self):
         results = self.__get_as_value()
         return len(results)
 
     def flatmap(self, fn):
-        result = map(fn, self.data)
-        return Stream(generator_from_list(next(result)))
+        results = self.__get_as_value()
+        result = map(fn, results)
+        return Stream(generator_from_list_of_lists(result))
 
     def filter(self, fn):
-        self.data = filter(fn, self.data)
-        return self
+        return Stream(filter(fn, self.data))
+
 
     # To Avoid Generator Corruption, Copy it
     def __get_as_value(self):
