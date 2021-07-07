@@ -13,7 +13,7 @@ Writing concise functional code in python
 #       Get their firstname , if their salary greater than 80000 and gender is male
 
 #Instead of writing like this
-users=[]
+
 
 list(map(lambda user: user['first_name'],  
          filter(lambda user:user['salary'] > 80000, 
