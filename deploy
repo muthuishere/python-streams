@@ -1,0 +1,8 @@
+delete files under src/egg-info
+delete files under dist/*
+
+rm dist/*
+
+py -m build
+
+py -m twine upload --repository testpypi dist/*

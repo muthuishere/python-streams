@@ -1,5 +1,5 @@
-# python-functional-stream
-Streams in Python for concise code
+# functional-streams
+Streams in Python similar like java for writing concise code
 
 ```python
 #Instead of writing like this
