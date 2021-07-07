@@ -3,35 +3,6 @@ Streams in Python for concise code
 
 ```python
 #Instead of writing like this
-users = [
-    {
-        "id": 1,
-        "first_name": "Mandy",
-        "last_name": "Gowan",
-        "email": "mgowan0@aol.com",
-        "gender": "Female",
-        "loves": ['Soccer','Cricket','Golf'],
-        "salary": 119885
-    },
-    {
-        "id": 2,
-        "first_name": "Janessa",
-        "last_name": "Cotterell",
-        "email": "jcotterell1@aol.com",
-        "gender": "Female",
-        "loves": ['Cricket'],
-        "salary": 107629
-    },
-    {
-        "id": 6,
-        "first_name": "Jasen",
-        "last_name": "Franzini",
-        "email": "jfranzini5@aol.com",
-        "gender": "Male",
-        "loves": ['Soccer','Golf'],
-        "salary": 78373
-    }
-]
 
 list(map(lambda user: user['first_name'],  filter(lambda user:user['salary'] > 80000, filter(lambda product: product['gender'] == 'Male',users))))
 
