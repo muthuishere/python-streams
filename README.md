@@ -131,6 +131,7 @@ firstname_of_users = (stream_of_users
 
 #The above code should be rewritten as
 total_users = (stream_of_users
+                .stream()
                .length())
 
 firstname_of_users = (stream_of_users
