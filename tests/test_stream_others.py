@@ -48,6 +48,11 @@ users = [
 
 
 class TestStream(TestCase):
+    def test_example_lambda(self):
+        results = list(map(lambda user: user['first_name'],filter(lambda user:user['salary'] > 100000,users)
+                   ))
+        #['Mandy', 'Janessa']
+        print(results)
     def test_example_1(self):
         results = (Stream
                    .create(users)

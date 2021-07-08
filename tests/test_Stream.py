@@ -1,6 +1,7 @@
 import operator
 from unittest import TestCase
 
+from shared.BaseUnitTest import BaseUnitTest
 from shared.products import get_products
 from shared.users import get_users
 
@@ -10,7 +11,7 @@ import pstats
 from streams.Stream import Stream
 
 
-class TestStream(TestCase):
+class TestStream(BaseUnitTest):
     def test_create(self):
         results = Stream.create(get_users()).asList()
         self.assertEqual(25, len(results))
@@ -143,13 +144,15 @@ class TestStream(TestCase):
 
 
         product_stream= Stream.create(get_products())
-        total_products = product_stream.length()
+        total_products = product_stream.stream().length()
         products_of_rating_greater_than_three = (product_stream
                                             .stream()
                                         .filter(is_clothing)
+                                                 .peek(lambda val: print("is_clothing", val))
                                         .filter(is_rating_greater_than_three)
                                        )
         rating_values = (products_of_rating_greater_than_three
+                                        .stream()
                                         .flatmap(reviews_from_product)
                                         .map(rating_from_review)
                                         .asList())
@@ -187,11 +190,11 @@ class TestStream(TestCase):
         print("product_prices_skip_first_five_take_next_two_items", product_prices_skip_first_five_take_next_two_items)
         print("unique_product_prices", unique_product_prices)
         self.assertIsNotNone(rating_values)
-        self.assertEqual(rating_values, [5, 1, 2, 2, 1, 3, 2, 1, 2, 5, 1, 4, 1, 5, 5, 1])
-        self.assertEqual(product_prices, [699.0, 1199.0, 1199.0, 999.0, 999.0, 899.0, 899.0, 1499.0, 5398.0, 2795.0, 2499.0])
-        self.assertEqual(product_prices_skipped_nine_items, [2795.0, 2499.0])
-        self.assertEqual(product_prices_skip_first_five_take_next_two_items, [899.0, 899.0])
-        self.assertEqual(unique_product_prices, [899.0, 2499.0, 999.0, 2795.0, 1199.0, 1499.0, 5398.0, 699.0])
+        self.assertListContains( [5, 1, 2, 2, 1, 3, 2, 1, 2, 5, 1, 4, 1, 5, 5, 1],rating_values)
+        self.assertListContains( [699.0, 1199.0, 1199.0, 999.0, 999.0, 899.0, 899.0, 1499.0, 5398.0, 2795.0, 2499.0],product_prices)
+        self.assertListContains( [2795.0, 2499.0],product_prices_skipped_nine_items)
+        self.assertListContains( [899.0, 899.0],product_prices_skip_first_five_take_next_two_items)
+        self.assertListContains( [899.0, 2499.0, 999.0, 2795.0, 1199.0, 1499.0, 5398.0, 699.0],unique_product_prices)
         self.assertEqual(total_products, 154)
         self.assertIn('Alisha Solid Women s Cycling Shorts',product_names)
         self.assertIn(5,rating_values)
