@@ -47,7 +47,7 @@ users = [
         ]
 
 
-class TestStream(TestCase):
+class TestStreamOthers(TestCase):
     def test_example_lambda(self):
         results = list(map(lambda user: user['first_name'],filter(lambda user:user['salary'] > 100000,users)
                    ))

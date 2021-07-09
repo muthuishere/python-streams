@@ -109,7 +109,7 @@ Only we have added wrapper to make the code concise
 
 
 #### Abstractions
-If you need to use partial abstraction , try using stream method. 
+If you need to use abstractions to get reusable , try using stream method. 
         as the generators used get corrupted by the very first expansion
 For Example
 
@@ -120,7 +120,7 @@ stream_of_users = (Stream
                     .create(users)
                     )
 
-#The below code wont work
+#The below code wont work , as the genrators expire once you aggregate it
 total_users = (stream_of_users
                .length())
 
@@ -132,13 +132,15 @@ firstname_of_users = (stream_of_users
 #The above code should be rewritten as
 total_users = (stream_of_users
                 .stream()
-               .length())
+                .length())
 
 firstname_of_users = (stream_of_users
-                            .stream()
+                           .stream()
                            .map(lambda user: user['first_name'])
                            .asList())
 
-# The stream will make use of copying the items which has been expanded 
+# The stream will make use of copying the generators
+
+
 
 ```

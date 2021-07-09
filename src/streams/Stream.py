@@ -1,5 +1,5 @@
 from functools import reduce
-
+from itertools import tee
 
 def generator_from_list(data):
     for row in data:
@@ -21,7 +21,8 @@ class Stream():
         return self
 
     def filter(self, fn):
-        return Stream(filter(fn, self.data))
+        self.data = filter(fn, self.data)
+        return self
 
     def peek(self, fn):
         def peekfunction(val):
@@ -31,50 +32,50 @@ class Stream():
         self.data = map(peekfunction, self.data)
         return self
 
-    # Validate Skip is not doing any issues for generator object
     def skip(self, number):
-        results = self.__convert_as_list()
-        updated_value = results[number:]
-        return Stream(generator_from_list(updated_value))
+        for i in range(number):
+            next(self.data)
+
+        return self
 
     def take(self, number):
         results = self.__convert_as_list()
         updated_value = results[:number]
-        return Stream(generator_from_list(updated_value))
+        self.data = generator_from_list(updated_value)
+        return self
 
     def distinct(self):
         results = self.__convert_as_list()
         unique_items = list(set(results))
-        return Stream(generator_from_list(unique_items))
+        self.data = generator_from_list(unique_items)
+        return self
+
+    def flatmap(self, fn):
+        data = map(fn, self.data)
+        self.data = generator_from_list_of_lists(data)
+        return self
+
+    def __create_a_copy(self):
+        self.data, other = tee(self.data)
+        return other
+
+    def __convert_as_list(self):
+        return list(self.data)
+
+    def stream(self):
+        result = self.__create_a_copy()
+        return Stream(result)
 
     def length(self):
         results = self.__convert_as_list()
         return len(results)
 
-    def flatmap(self, fn):
-        result = map(fn, self.data)
-        return Stream(generator_from_list_of_lists(result))
-
-
-
-    def __create_a_copy(self):
-        result = list(self.data)
-        self.data = generator_from_list(result)
-        return result
-
-    def __convert_as_list(self):
-        return list(self.data)
-
-    def reduce(self, fn):
-        return reduce(fn, self.data)
-
-    def stream(self):
-        result = self.__create_a_copy()
-        return Stream(generator_from_list(result))
-
     def asList(self):
         result = self.__convert_as_list()
         return result
+
+    def reduce(self, fn):
+        return reduce(fn, self.data)
 
     @staticmethod
     def create(data):

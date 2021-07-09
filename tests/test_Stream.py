@@ -125,12 +125,14 @@ class TestStream(BaseUnitTest):
                                                      'last_name': 'Simester',
                                                      'salary': 78404}])
     def test_distinct(self):
+
         results = (Stream
                    .create(get_users())
                    .map(lambda user: user['gender'])
                    .distinct()
                    .asList())
         print("results", results)
+        self.assertListContains(['Female', 'Polygender', 'Male', 'Agender', 'Non-binary'],results)
         self.assertIsNotNone(results)
         self.assertIn('Male',results)
         self.assertIn('Female',results)
