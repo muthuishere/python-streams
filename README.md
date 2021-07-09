@@ -109,7 +109,7 @@ Only we have added wrapper to make the code concise
 
 
 #### Abstractions
-If you need to use abstractions to get reusable , try using stream method. 
+If you need to use transducers, use the same way and just add the stream when you are using it
         as the generators used get corrupted by the very first expansion
 For Example
 
@@ -120,7 +120,7 @@ stream_of_users = (Stream
                     .create(users)
                     )
 
-#The below code wont work , as the genrators expire once you aggregate it
+#The below code might not work , as the genrators expire once you aggregate it
 total_users = (stream_of_users
                .length())
 
