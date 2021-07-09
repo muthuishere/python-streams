@@ -24,7 +24,8 @@ class TestStreamOthers(BaseUnitTest):
         products = get_products()
 
         start_profiler()
-        #1028 function calls in 0.001 seconds
+
+        #531 function calls in 0.001 seconds
         product_stream = Stream.create(products)
         total_products_with_rating_greater_than_3 = (product_stream
                           .stream()

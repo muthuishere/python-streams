@@ -1,5 +1,6 @@
 from functools import reduce
-from itertools import tee
+from itertools import tee, islice
+
 
 def generator_from_list(data):
     for row in data:
@@ -39,9 +40,7 @@ class Stream():
         return self
 
     def take(self, number):
-        results = self.__convert_as_list()
-        updated_value = results[:number]
-        self.data = generator_from_list(updated_value)
+        self.data = islice(self.data, number)
         return self
 
     def distinct(self):
