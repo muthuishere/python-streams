@@ -1,112 +1,100 @@
 from functools import reduce, partial
-from itertools import tee, islice
+from itertools import tee, islice, chain
 
 from streams.utilities import generator_from_list_of_lists, generator_from_list
 
 
 class Stream():
-    def __init__(self,partials = [],data = None):
+    def __init__(self, partials=[], data=None):
         self.partials = partials
         self.data = data
 
     def map(self, fn):
-        partial_function= partial(map,fn)
-        self.partials.append(partial_function)
+        self.partials.append(partial(map, fn))
         return self
 
     def filter(self, fn):
-        partial_function = partial(filter, fn)
-        self.partials.append(partial_function)
+        self.partials.append(partial(filter, fn))
         return self
 
     def peek(self, fn):
-        def peekfunction(fn,val):
+        def peekfunction(fn, val):
             fn(val)
             return val
 
-        def partialpeekfunction(data,fn):
-            return map(lambda val:peekfunction(fn,val), data)
+        def partialpeekfunction(data, fn):
+            return map(lambda val: peekfunction(fn, val), data)
 
-        partial_function = partial(partialpeekfunction, fn=fn)
-        self.partials.append(partial_function)
+        self.partials.append(partial(partialpeekfunction, fn=fn))
         return self
 
     def skip(self, number):
-        def skipfunction(data,number):
-            return islice(data,number,None)
+        def partialskipfunction(data, number):
+            return islice(data, number, None)
 
-        partial_function = partial(skipfunction, number=number)
-        self.partials.append(partial_function)
+        self.partials.append(partial(partialskipfunction, number=number))
         return self
 
     def take(self, number):
-        def takefunction(data,number):
+        def partialtakefunction(data, number):
             return islice(data, number)
 
-        partial_function = partial(takefunction, number=number)
-        self.partials.append(partial_function)
+        self.partials.append(partial(partialtakefunction, number=number))
         return self
 
     def distinct(self):
-        def distinctfunction(data):
+        def partialdistinctfunction(data):
             results = list(data)
             unique_items = list(set(results))
             return generator_from_list(unique_items)
 
-        self.partials.append(distinctfunction)
+        self.partials.append(partialdistinctfunction)
         return self
 
     def flatmap(self, fn):
-        def flatmapfunction(fn,input):
+        def partialflatmapfunction(fn, input):
             data = map(fn, input)
             return generator_from_list_of_lists(data)
 
-        partial_flatmap_function = partial(flatmapfunction, fn)
-        self.partials.append(partial_flatmap_function)
+        self.partials.append(partial(partialflatmapfunction, fn))
         return self
 
-
-
     def length(self):
-        def lengthfunction(data):
+        def partiallengthfunction(data):
             return len(list(data))
 
-        self.partials.append(lengthfunction)
+        self.partials.append(partiallengthfunction)
         return self.execute(self.data)
 
     def asList(self):
-        def asListFunction(data):
+        def partialAsListFunction(data):
             return list(data)
 
-        self.partials.append(asListFunction)
+        self.partials.append(partialAsListFunction)
         return self.execute(self.data)
 
     def reduce(self, fn):
-        partial_function = partial(reduce, fn)
-        self.partials.append(partial_function)
-
+        self.partials.append(partial(reduce, fn))
         return self.execute(self.data)
 
     def stream(self):
         self.data, other = tee(self.data)
-        return Stream(self.partials.copy(),other)
+        return Stream(self.partials.copy(), other)
 
-    def pipe(self,transducer):
-        self.partials = [partial for partialOfPartials in [transducer.partials.copy(), self.partials] for partial in partialOfPartials]
+    def pipe(self, transducer):
+        self.partials = list(chain(transducer.partials, self.partials))
         return self
 
-    def execute(self,data):
-        result=data
+    def execute(self, data):
+        result = data
         for partial in self.partials:
             result = partial(result)
         return result
 
     @staticmethod
     def create(data):
-        return Stream([],data=data)
+        return Stream([], data=data)
 
     @staticmethod
     def transducer():
-        return Stream([],data=None)
-
-
+        return Stream([], data=None)
