@@ -91,6 +91,10 @@ class Stream():
         self.data, other = tee(self.data)
         return Stream(self.partials.copy(),other)
 
+    def pipe(self,transducer):
+        self.partials = [partial for partialOfPartials in [transducer.partials.copy(), self.partials] for partial in partialOfPartials]
+        return self
+
     def execute(self,data):
         result=data
         for partial in self.partials:
@@ -100,5 +104,9 @@ class Stream():
     @staticmethod
     def create(data):
         return Stream([],data=data)
+
+    @staticmethod
+    def transducer():
+        return Stream([],data=None)
 
 

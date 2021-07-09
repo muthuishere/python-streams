@@ -109,7 +109,7 @@ Only we have added wrapper to make the code concise
 
 
 #### Abstractions
-If you need to use transducers, use the same way and just add the stream when you are using it
+If you need to use abstract items, use the same chaining and just invoke the stream when you are using it
         as the generators used get corrupted by the very first expansion
 For Example
 
@@ -140,6 +140,39 @@ firstname_of_users = (stream_of_users
                            .asList())
 
 # The stream will make use of copying the generators
+
+
+
+```
+
+#### Transducers
+If you need to use transducers, create with Stream.transducer and connect with pipe whenever required
+
+For Example
+
+```python
+
+skip_five_and_take_three_items = (Stream
+                                          .transducer()
+                                          .skip(5)
+                                          .take(3)
+                                          )
+
+skip_five_and_take_three_items_within_zero_to_hundred = (Stream
+                                                         .create(range(100))
+                                                         .pipe(skip_five_and_take_three_items)
+                                                         .asList()
+                                                         )
+# Result [5, 6, 7]
+
+skip_five_and_take_three_items_within_700_to_800 = (Stream
+                                                    .create(range(700, 800))
+                                                    .pipe(skip_five_and_take_three_items)
+                                                    .asList()
+                                                    )
+#Result [705, 706, 707]
+
+
 
 
 
