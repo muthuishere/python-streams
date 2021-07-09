@@ -34,9 +34,7 @@ class Stream():
         return self
 
     def skip(self, number):
-        for i in range(number):
-            next(self.data)
-
+        self.data = islice(self.data,number,None)
         return self
 
     def take(self, number):

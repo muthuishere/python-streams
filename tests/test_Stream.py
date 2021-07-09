@@ -124,6 +124,23 @@ class TestStream(BaseUnitTest):
                                                      'ip_address': '233.8.45.246',
                                                      'last_name': 'Simester',
                                                      'salary': 78404}])
+
+    def test_take_numbers(self):
+        first_two_numbers = (Stream
+                                .create(range(100))
+                                .take(2)
+                                .asList()
+                                )
+        self.assertEqual([0,1],first_two_numbers)
+
+    def test_skip_numbers(self):
+        last_two_numbers = (Stream
+                                .create(range(100))
+                                .skip(98)
+                                .asList()
+                                )
+        self.assertEqual([98,99],last_two_numbers)
+
     def test_distinct(self):
 
         results = (Stream
