@@ -24,20 +24,16 @@ class Stream(Transducer):
         return self
 
     def asList(self):
-        def partialAsListFunction(data):
-            return list(data)
-
-        self.add_partial(partialAsListFunction)
         response = self.execute()
-
         return list(response)
 
-    def asSingle(self):
-        def partialAsSingleFunction(data):
-            return next(data)
+    def asSet(self):
+        response = self.execute()
+        return set(response)
 
-        self.add_partial(partialAsSingleFunction)
-        return self.execute()
+    def asSingle(self):
+        response = self.execute()
+        return next(response)
 
 
 

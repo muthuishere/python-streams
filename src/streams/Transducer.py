@@ -26,6 +26,13 @@ class Transducer():
         self.add_partial_to_transducer(partial(filter, fn))
         return self
 
+    def distinct(self):
+        def partialdistinctfunction(data):
+            unique_items = set(data)
+            return generator_from_list(unique_items)
+
+        self.add_partial_to_transducer(partialdistinctfunction)
+        return self
 
     def reduce(self, fn,initial_value=default_reduce_initializer):
         def partialReduceFunction(data,fn,initial_value):
@@ -74,14 +81,7 @@ class Transducer():
         self.add_partial_to_transducer(partial(partialtakefunction, number=number))
         return self
 
-    def distinct(self):
-        def partialdistinctfunction(data):
-            results = list(data)
-            unique_items = list(set(results))
-            return generator_from_list(unique_items)
 
-        self.add_partial_to_transducer(partialdistinctfunction)
-        return self
 
     def flatmap(self, fn):
         def partialflatmapfunction(fn, input):

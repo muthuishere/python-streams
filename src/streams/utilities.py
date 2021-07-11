@@ -10,6 +10,16 @@ def generator_from_list(data):
         yield row
 
 
+def generator_from_file(filename):
+    with open(filename,'r') as f:
+        for line in f:
+            yield line
+        f.close()
+
+
+
+
+
 def generator_from_list_of_lists(toplist):
     for values in toplist:
         for value in values:

@@ -3,7 +3,7 @@ from shared.products import get_products
 from shared.CustomProfiler import start_profiler, stop_profiler
 
 from streams.Stream import Stream
-from users import get_200_users
+from shared.users import get_200_users
 
 
 class TestStreamOthers(BaseUnitTest):
@@ -37,6 +37,35 @@ class TestStreamOthers(BaseUnitTest):
         print(prices_for_clothes)
         self.assertEqual(57, total_products_with_rating_greater_than_3)
         self.assertListEqualsInAnyOrder([2795.0, 2699.0, 750.0, 1199.0, 2299.0, 1200.0, 1299.0, 1499.0],
+                                        prices_for_clothes)
+
+    def test_compose_functions_functional_stream_another_long_method(self):
+        is_clothing = lambda product: product['category'] == 'Clothing'
+        is_rating_greater_than_three = lambda product: product['overAllRating'] > 3
+        price_from_product = lambda product: product['price']
+
+        products = get_products()
+
+        start_profiler()
+
+        # 392 function calls in 0.000 seconds
+        product_stream = Stream.create(products)
+        total_products_with_rating_greater_than_3 = (product_stream
+                                                     .stream()
+                                                     .filter(is_rating_greater_than_three)
+                                                     .length())
+        prices_for_clothes = (product_stream
+                              .stream()
+                              .filter(is_clothing)
+                              .map(price_from_product)
+                              .asSet()
+                              )
+
+        stop_profiler()
+        print(total_products_with_rating_greater_than_3)
+        print(prices_for_clothes)
+        self.assertEqual(57, total_products_with_rating_greater_than_3)
+        self.assertListEqualsInAnyOrder([2400.0, 2499.0, 899.0, 999.0, 4999.0, 2795.0, 2699.0, 750.0, 1199.0, 2299.0, 1200.0, 1299.0, 1499.0, 2199.0, 5398.0, 699.0, 1399.0],
                                         prices_for_clothes)
 
     def test_compose_functions_users_functional_stream(self):
