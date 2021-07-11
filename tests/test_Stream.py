@@ -48,6 +48,7 @@ class TestStream(BaseUnitTest):
                            .filter(lambda user: user['gender'] == 'Male')
                            .map(lambda user: user['salary'])
                            .reduce(operator.add)
+                           .asSingle()
                            )
         self.assertEqual(sum_of_salaries, 977023)
 
@@ -64,6 +65,7 @@ class TestStream(BaseUnitTest):
                            .map(lambda user: user['salary'])
                            .peek(increment_peek)
                            .reduce(operator.add)
+                           .asSingle()
                            )
         self.assertEqual(peekCount, 12)
 

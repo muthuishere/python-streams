@@ -1,6 +1,6 @@
 from shared.BaseUnitTest import BaseUnitTest
 from shared.products import get_products
-from shared.profiler import start_profiler, stop_profiler
+from shared.CustomProfiler import start_profiler, stop_profiler
 
 from streams.Stream import Stream
 from users import get_200_users

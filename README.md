@@ -74,6 +74,10 @@ results = (Stream
            .asList())
 #['Mandy', 'Janessa']
 
+
+#Using Reduce
+
+
 #Using flatMap Distinct 
 results = (Stream
            .create(users)
@@ -95,11 +99,22 @@ results = (Stream
 #Even you can peek results
 results = (Stream
            .create(users)
+            .filter(lambda user:user['gender'] == 'Female')
            .peek(lambda data:print("User",data))
            .map(lambda user: user['first_name'])
            .asList())
-#Will list out all users
+#Will list out all female users and print 
 
+#To Reduce
+sum_of_female_salaries = (Stream
+                   .create(users)
+                   .filter(lambda user: user['gender'] == 'Female')
+                    .map(lambda user:user['salary'])
+                   .reduce(operator.add)
+                   .asSingle())
+
+#Will print sum of female user salaries
+#227514
 ```
 
 ## Additional Information
@@ -146,14 +161,14 @@ firstname_of_users = (stream_of_users
 ```
 
 #### Transducers
-If you need to use transducers, create with Stream.transducer and connect with pipe whenever required
+If you need to use transducers, create with Stream.compose and connect with pipe whenever required
 
 For Example
 
 ```python
 
 skip_five_and_take_three_items = (Stream
-                                          .transducer()
+                                          .compose()
                                           .skip(5)
                                           .take(3)
                                           )
@@ -165,15 +180,31 @@ skip_five_and_take_three_items_within_zero_to_hundred = (Stream
                                                          )
 # Result [5, 6, 7]
 
-skip_five_and_take_three_items_within_700_to_800 = (Stream
-                                                    .create(range(700, 800))
-                                                    .pipe(skip_five_and_take_three_items)
-                                                    .asList()
-                                                    )
-#Result [705, 706, 707]
+
+skip_five_and_take_three_items_within_zero_to_hundred_and_get_one = (Stream
+                                                                 .create(range(100))
+                                                                 .pipe(skip_five_and_take_three_items)
+                                                                 .take(1)
+                                                                 .asList()
+                                                                 )
+# Result [5]
 
 
-
+#To Execute Transducers with Aggregate functions
+sum_of_salaries_function = (Stream
+                           .compose()
+                           .filter(lambda user: user['gender'] == 'Male')
+                           .map(lambda user: user['salary'])
+                           .reduce(operator.add)
+                           )
+sum_of_salaries = (Stream
+                   .create(get_users())
+                   .pipe(sum_of_salaries_function)
+                   .asSingle()
+                   )
+#Result 977023
+        
+        
 
 
 ```

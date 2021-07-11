@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from shared.BaseUnitTest import BaseUnitTest
 from shared.products import get_products
-from shared.profiler import start_profiler, stop_profiler
+from shared.CustomProfiler import start_profiler, stop_profiler
 from shared.users import get_users
 
 import cProfile
