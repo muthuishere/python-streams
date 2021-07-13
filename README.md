@@ -242,5 +242,5 @@ skip_five_and_take_three_items_within_700_to_800 = (Stream
 
 # Built for Performance 
 This is just a syntactic sugar, with no other third party software involved.
-Everything has been written with built-in modules, Because of very hard fights with <a href="https://github.com/yawpitch/">yawpitch</a>. I started taking it seriously, Thanks for his valuable suggestions.
+Everything has been written with built-in modules, Because of very hard fights with <a href="https://github.com/yawpitch/">yawpitch</a>. I started taking performance seriously, Thanks for his extremely valuable suggestions.
 
