@@ -9,7 +9,7 @@ import cProfile
 import pstats
 
 from streams.Stream import Stream
-from users import get_200_users
+from shared.users import get_200_users
 
 
 class TestStreamPartials(BaseUnitTest):

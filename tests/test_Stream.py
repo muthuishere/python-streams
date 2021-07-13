@@ -68,6 +68,40 @@ class TestStream(BaseUnitTest):
                            .asSingle()
                            )
         self.assertEqual(peekCount, 12)
+    def test_catch_with_catch_all(self):
+        has_error = False
+
+        def catch_all_exception(data):
+            nonlocal has_error
+            print("test_catch",data)
+            has_error = True
+
+        sum_of_salaries = (Stream
+                           .create(get_users())
+                           .filter(lambda user: user['gender'] == 'Male')
+                           .map(lambda user: user['salaryv'])
+                           .reduce(operator.add)
+                           .catchAll(catch_all_exception)
+                           .asSingle()
+                           )
+        self.assertTrue(has_error)
+
+    def test_catch_without_catch_all(self):
+
+        try:
+            sum_of_salaries = (Stream
+                               .create(get_users())
+                               .filter(lambda user: user['gender'] == 'Male')
+                               .map(lambda user: user['salaryv'])
+                               .reduce(operator.add)
+                               .asSingle()
+                               )
+            self.assertIsNone(sum_of_salaries)
+        except Exception as inst:
+            print(inst)
+            self.assertIsNotNone(inst)
+
+
 
     def test_skip(self):
         male_users_after_eighth = (Stream
