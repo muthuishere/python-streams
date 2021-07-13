@@ -34,7 +34,7 @@ from streams.operations.operators import item
    .asList())
 
 
-# You could have seen there is no lambdas involved in above code
+# You could have seen there is no lambdas involved in above code, I havent missed it , the implementation & dynamism of python does wraps it.
 # You are free to use lambdas or functions as well inside these map filter functions
 
 
