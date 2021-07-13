@@ -21,7 +21,22 @@ list(map(lambda user: user['first_name'],
                        users))))
 
 #Write this
+
+#Write this
 from streams.Stream import Stream
+from streams.operations.operators import item
+
+(Stream
+   .create(users)
+   .filter(item['salary'] > 80000)
+   .filter(item['gender'] == 'Female')
+   .map(item['first_name'])
+   .asList())
+
+
+# You could have seen there is no lambdas involved in above code
+# You are free to use lambdas or functions as well inside these map filter functions
+
 
 (Stream
    .create(users)
@@ -30,12 +45,14 @@ from streams.Stream import Stream
    .map(lambda user: user['first_name'])
    .asList())
 
-#A concise way to write lambdas,functional code in python
+
+#A concise way to write functional code in python
 
 ```
 
 ```python
 from streams.Stream import Stream
+from streams.operations.operators import item
 users = [
     {
         "id": 1,
@@ -69,19 +86,15 @@ users = [
 #Using Map Filter 
 results = (Stream
            .create(users)
-           .filter(lambda user:user['salary'] > 80000)
-           .map(lambda user: user['first_name'])
+           .filter(item['salary'] > 80000)
+           .map(item['first_name'])
            .asList())
 #['Mandy', 'Janessa']
-
-
-#Using Reduce
-
 
 #Using flatMap Distinct 
 results = (Stream
            .create(users)
-           .flatmap(lambda user:user['loves'] )
+           .flatmap(item['loves'] )
            .distinct()
            .asList())
 #['Cricket', 'Golf', 'Soccer']
@@ -91,7 +104,7 @@ results = (Stream
            .create(users)
            .skip(1)
            .take(1)
-           .map(lambda user: user['first_name'])
+           .map(item['first_name'])
            .asList())
 #['Janessa']
 
@@ -99,23 +112,55 @@ results = (Stream
 #Even you can peek results
 results = (Stream
            .create(users)
-            .filter(lambda user:user['gender'] == 'Female')
            .peek(lambda data:print("User",data))
-           .map(lambda user: user['first_name'])
+           .map(item['first_name'])
            .asList())
-#Will list out all female users and print 
 
-#To Reduce
-sum_of_female_salaries = (Stream
-                   .create(users)
-                   .filter(lambda user: user['gender'] == 'Female')
-                    .map(lambda user:user['salary'])
-                   .reduce(operator.add)
-                   .asSingle())
+#also for peek with item.print or can use side effects inside
+(Stream
+   .create(users)
+   .peek(item.print)
+   .map(item['first_name'])
+   .asList())
 
-#Will print sum of female user salaries
-#227514
+#Will list out all users
+
 ```
+
+```text
+babynames.csv
+
+Id,Male name,Female name
+1,Liam,Olivia
+2,Noah,Emma
+```
+
+
+```python
+#From CSV to csv
+from streams.FileStream import FileStream
+from streams.operations.operators import item
+
+(FileStream.createFromCsv(full_path_of_input_csv)
+         .filter(item['Female name'].startswith("A"))
+         .map(item['Female name'])
+         .peek(item.print)
+         .asCSV(full_path_of_output_csv))
+
+```
+
+```python
+#From text and to text
+from streams.FileStream import FileStream
+
+
+(FileStream.createFromText(full_path_of_input_text)
+         .filter(lambda value: value.startswith("A"))
+         .peek(lambda val: print(val))         
+         .asTextFile(full_path_of_output_text))
+
+```
+
 
 ## Additional Information
 #### Design
@@ -130,29 +175,30 @@ For Example
 
 ```python
 
+from streams.Stream import Stream
+from streams.operations.operators import item
 
 stream_of_users = (Stream
-                    .create(users)
-                    )
+                   .create(users)
+                   )
 
-#The below code might not work , as the genrators expire once you aggregate it
+# The below code might not work , as the genrators expire once you aggregate it
 total_users = (stream_of_users
                .length())
 
-firstname_of_users = (stream_of_users           
-                           .map(lambda user: user['first_name'])
-                           .asList())
+firstname_of_users = (stream_of_users
+                      .map(lambda user: user['first_name'])
+                      .asList())
 
-
-#The above code should be rewritten as
+# The above code should be rewritten as
 total_users = (stream_of_users
-                .stream()
-                .length())
+               .stream()
+               .length())
 
 firstname_of_users = (stream_of_users
-                           .stream()
-                           .map(lambda user: user['first_name'])
-                           .asList())
+                      .stream()
+                      .map(lambda user: user['first_name'])
+                      .asList())
 
 # The stream will make use of copying the generators
 
@@ -161,50 +207,39 @@ firstname_of_users = (stream_of_users
 ```
 
 #### Transducers
-If you need to use transducers, create with Stream.compose and connect with pipe whenever required
+If you need to use transducers, create with Stream.transducer and connect with pipe whenever required
 
 For Example
 
 ```python
 
 skip_five_and_take_three_items = (Stream
-                                          .compose()
-                                          .skip(5)
-                                          .take(3)
-                                          )
+                                  .transducer()
+                                  .skip(5)
+                                  .take(3)
+                                  )
 
 skip_five_and_take_three_items_within_zero_to_hundred = (Stream
-                                                         .create(range(100))
+                                                         .createFromText(range(100))
                                                          .pipe(skip_five_and_take_three_items)
                                                          .asList()
                                                          )
 # Result [5, 6, 7]
 
-
-skip_five_and_take_three_items_within_zero_to_hundred_and_get_one = (Stream
-                                                                 .create(range(100))
-                                                                 .pipe(skip_five_and_take_three_items)
-                                                                 .take(1)
-                                                                 .asList()
-                                                                 )
-# Result [5]
+skip_five_and_take_three_items_within_700_to_800 = (Stream
+                                                    .createFromText(range(700, 800))
+                                                    .pipe(skip_five_and_take_three_items)
+                                                    .asList()
+                                                    )
+# Result [705, 706, 707]
 
 
-#To Execute Transducers with Aggregate functions
-sum_of_salaries_function = (Stream
-                           .compose()
-                           .filter(lambda user: user['gender'] == 'Male')
-                           .map(lambda user: user['salary'])
-                           .reduce(operator.add)
-                           )
-sum_of_salaries = (Stream
-                   .create(get_users())
-                   .pipe(sum_of_salaries_function)
-                   .asSingle()
-                   )
-#Result 977023
-        
-        
+
 
 
 ```
+
+
+# Built for Performance 
+        This is just a syntactic sugar, with no other third party software involved.
+Everything has been written with built-in modules, Because of very hard fights with <a href="https://github.com/yawpitch/">yawpitch</a>. I started taking it seriously, Thanks for his valuable suggestions.

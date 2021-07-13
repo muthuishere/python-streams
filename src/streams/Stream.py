@@ -4,12 +4,14 @@ from itertools import tee, islice, chain
 
 
 from streams.Transducer import Transducer
+from streams.generator_utilities import empty_iterator
 from streams.utilities import default_reduce_initializer, executewith, executeasync
 
 
 class Stream(Transducer):
     def __init__(self, partials=[], data=None):
         self.partials=partials
+        self.__catch_all_fn = None
         self.data = data
 
     def length(self):
@@ -45,15 +47,42 @@ class Stream(Transducer):
         self.partials = list(chain(transducer.partials, self.partials))
         return self
 
+    def catchAll(self, fn):
+        self.__catch_all_fn = fn
+        return self
+
 
 
     def execute(self):
         result = self.data
-        for currentpartial in self.partials:
-            result = currentpartial(result)
+        #
+        # for currentpartial in self.partials:
+        #     result = currentpartial(result)
+        # return result
+        #result= self.data
+
+
+
+        for partialfn in self.partials:
+            try:
+                result = partialfn(result)
+            except Exception as inst:
+                self.handleException(inst,partialfn,result)
+                return empty_iterator()
 
         return result
+        #result= self.data
 
+
+        #return reduce(lambda acc,partialfn:executepartial(acc,partialfn),self.partials,self.data)
+
+    def handleException(self, inst,partialfn,currentdata):
+        error_data = {"error": str(type(inst)) + "Error while Executing Function ", "function-data": partialfn,
+                      "args": inst.args,"currentdata":currentdata, "exception": inst}
+        if self.__catch_all_fn is not None:
+            self.__catch_all_fn(error_data)
+        else:
+            raise Exception(error_data)
 
     @staticmethod
     def create(data):

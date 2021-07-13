@@ -1,4 +1,5 @@
 import asyncio
+import csv
 import itertools
 from itertools import islice
 
@@ -13,6 +14,14 @@ def generator_from_list(data):
 def generator_from_file(filename):
     with open(filename,'r') as f:
         for line in f:
+            yield line
+        f.close()
+
+
+def generator_from_csv(filename,encoding='utf-8' ):
+    with open(filename,mode='r', encoding=encoding) as f:
+        reader = csv.DictReader(f)
+        for line in reader:
             yield line
         f.close()
 

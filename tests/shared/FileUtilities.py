@@ -9,6 +9,9 @@ def get_current_path():
 def getfemale_babies_file_name():
     return get_current_path() + '\\resources\\female_babies.txt'
 
+def get_babies_csv_file_name():
+    return get_current_path() + '\\resources\\babynames.csv'
+
 def create_output_file(filename):
     return get_current_path() + '\\output\\' +filename
 
