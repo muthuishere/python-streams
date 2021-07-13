@@ -7,8 +7,6 @@ from shared.users import get_users
 import cProfile
 import pstats
 
-from streams.Stream import Stream
-from streams.operations.operators import item
 
 
 def profile_method(fn):
@@ -51,6 +49,16 @@ users = [
 ]
 
 
+from streams.Stream import Stream
+from streams.operations.operators import item
+(Stream
+       .create(users)
+       .filter(item['salary'] > 80000)
+       .filter(item['gender'] == 'Female')
+       .map(item['first_name'])
+       .asList())
+
+
 class TestStreamReadMe(BaseUnitTest):
     def test_example_lambda(self):
         results = list(map(lambda user: user['first_name'], filter(lambda user: user['salary'] > 100000, users)
@@ -86,6 +94,7 @@ class TestStreamReadMe(BaseUnitTest):
                    .filter(item['gender'] == 'Female')
                    .map(item['first_name'])
                    .asList())
+
         # ['Mandy', 'Janessa']
         print(results)
         self.assertEqual(results, ['Mandy', 'Janessa'])
