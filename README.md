@@ -20,7 +20,6 @@ list(map(lambda user: user['first_name'],
                 filter(lambda product: product['gender'] == 'Male',
                        users))))
 
-#Write this
 
 #Write this
 from streams.Stream import Stream
@@ -34,8 +33,9 @@ from streams.operations.operators import item
    .asList())
 
 
-# You could have seen there is no lambdas involved in above code, I havent missed it , the implementation & dynamism of python does wraps it.
-# You are free to use lambdas or functions as well inside these map filter functions
+# You could have seen there is no lambdas involved in above code, 
+#      I havent missed it , the implementation & dynamism of python does wraps it.
+# You are free to use lambdas or functions as well , something like below
 
 
 (Stream
@@ -243,3 +243,4 @@ skip_five_and_take_three_items_within_700_to_800 = (Stream
 # Built for Performance 
 This is just a syntactic sugar, with no other third party software involved.
 Everything has been written with built-in modules, Because of very hard fights with <a href="https://github.com/yawpitch/">yawpitch</a>. I started taking it seriously, Thanks for his valuable suggestions.
+
