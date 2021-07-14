@@ -9,12 +9,37 @@ from streams.operations.operators import item
 
 class TestOperators(TestCase):
 
-    def test_value_map_numbers(self):
+    def test_reduce_with_sum_of_first_five_numbers(self):
         results = (Stream
                    .create(range(5))
                    .reduce(operator.add)
                    .asSingle())
         self.assertEqual(results, 10)
+
+    def test_reduce_with_sum_of_1_to_6(self):
+        results = (Stream
+                   .create(range(5))
+                   .map(item + 1)
+                   .reduce(item.sum)
+                   .asSingle())
+        self.assertEqual(results, 15)
+
+    # def test_filter_with_getting_even_numbers_from_1_to_10(self):
+    #     results = (Stream
+    #                .create(range(10))
+    #                .filter(item % 2 == 1)
+    #                .asList()
+    #                )
+    #     self.assertEqual(results, [1, 3, 5, 7, 9])
+
+    def test_filter_with_getting_odd_numbers_with_lambda_from_1_to_10(self):
+        results = (Stream
+                   .create(range(10))
+                   .filter(lambda value: value % 2 == 1)
+                   .asList()
+                   )
+        self.assertEqual(results, [1, 3, 5, 7, 9])
+
 
 
 def test_value_map(self):

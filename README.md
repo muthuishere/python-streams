@@ -33,8 +33,7 @@ from streams.operations.operators import item
    .asList())
 
 
-# You could have seen there is no lambdas involved in above code, 
-#      I havent missed it , the implementation & dynamism of python does wraps it.
+# You could have seen there is no lambdas involved in above code, for transformation
 # You are free to use lambdas or functions as well , something like below
 
 
@@ -124,6 +123,8 @@ results = (Stream
    .asList())
 
 #Will list out all users
+
+
 
 ```
 
@@ -238,9 +239,60 @@ skip_five_and_take_three_items_within_700_to_800 = (Stream
 
 
 ```
+### Known Constraints
+This section will list down the constraints of library
+
+#### Single Operator with item
+The item object will support only one operation, for more than one operations use lambda or refactor code
+
+```python
+from streams.Stream import Stream
+from streams.operations.operators import item
+
+(Stream
+   .create(range(5))
+    .map(item + 1)
+    .reduce(item.sum)
+    .asSingle())
+# Output 15
 
 
-# Contributors
+(Stream
+   .create(range(5))
+    .map(item + 1)
+    .reduce(item.sum)
+    .asSingle())
+# Result 15
+
+(Stream
+   .create(range(10))
+    .filter(item.isodd)
+    .asList()
+    )
+
+#Result  [1, 3, 5, 7, 9]
+
+#All the above will work , as 
+
+#The below will not work , as filter has two operators mod (%)  && Equal to (==)
+(Stream
+   .create(range(10))
+    .filter(item % 2 == 1)
+    .asList()
+    )
+
+#For these scenarios use lambda 
+(Stream
+   .create(range(10))
+    .filter(lambda value: value % 2 == 1)
+    .asList()
+    )
+
+
+```
+
+
+#### Contributors
 This is just a syntactic sugar, with no other third party software involved.
 Everything has been written with built-in modules, Because of very hard fights 
 with <a href="https://github.com/yawpitch/">yawpitch</a>. I started taking performance,space complexity seriously.

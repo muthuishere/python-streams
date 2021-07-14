@@ -8,7 +8,6 @@ import cProfile
 import pstats
 
 
-
 def profile_method(fn):
     profiler = cProfile.Profile()
     profiler.enable()
@@ -48,15 +47,8 @@ users = [
     }
 ]
 
-
 from streams.Stream import Stream
 from streams.operations.operators import item
-(Stream
-       .create(users)
-       .filter(item['salary'] > 80000)
-       .filter(item['gender'] == 'Female')
-       .map(item['first_name'])
-       .asList())
 
 
 class TestStreamReadMe(BaseUnitTest):
@@ -106,7 +98,7 @@ class TestStreamReadMe(BaseUnitTest):
                            .reduce(item['salary'].sum)
                            .asSingle()
                            )
-        #78373
+        # 78373
         self.assertEqual(sum_of_salaries, 78373)
 
     def test_flatmap_operator_loves(self):
@@ -118,7 +110,6 @@ class TestStreamReadMe(BaseUnitTest):
 
         self.assertListEqualsInAnyOrder(results, ['Cricket', 'Golf', 'Soccer'])
 
-
     def test_operator_skip_take(self):
         results = (Stream
                    .create(users)
@@ -128,6 +119,17 @@ class TestStreamReadMe(BaseUnitTest):
                    .asList())
         self.assertListEqualsInAnyOrder(results, ['Janessa'])
 
+    # TODO Catch needs rework
+    # def test_operator_catch(self):
+    #     results = (Stream
+    #                .create(users)
+    #                .filter(lambda user: user['gender'] == 'Male')
+    #                .map(lambda user: user['salaryv'])
+    #                .catchAll(lambda ex: print(ex))
+    #                .asList()
+    #                )
+    #
+    #     self.assertListEqualsInAnyOrder(results, ['Janessa'])
 
     def test_operator_peek(self):
         results = (Stream
