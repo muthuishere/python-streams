@@ -16,6 +16,13 @@ class TestOperators(TestCase):
                    .asSingle())
         self.assertEqual(results, 10)
 
+    def test_map_with_product_of_first_10_numbers(self):
+        results = (Stream
+                   .create(range(5))
+                   .map(item * 2)
+                   .asList())
+        self.assertEqual(results, [0, 2, 4, 6, 8])
+
     def test_reduce_with_sum_of_1_to_6(self):
         results = (Stream
                    .create(range(5))

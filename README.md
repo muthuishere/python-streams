@@ -125,6 +125,13 @@ results = (Stream
 #Will list out all users
 
 
+#Also To find product within range of 5 elements
+(Stream
+   .create(range(5))
+   .map(item * 2)
+   .asList())
+#Result [0, 2, 4, 6, 8]
+
 
 ```
 

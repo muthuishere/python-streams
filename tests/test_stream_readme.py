@@ -91,6 +91,8 @@ class TestStreamReadMe(BaseUnitTest):
         print(results)
         self.assertEqual(results, ['Mandy', 'Janessa'])
 
+
+
     def test_reduce_operator(self):
         sum_of_salaries = (Stream
                            .create(users)
