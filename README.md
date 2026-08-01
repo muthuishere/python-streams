@@ -1,4 +1,5 @@
 # functional-streams
+[![Discord](https://img.shields.io/badge/AgentNexus-join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/V9C2kvHC8D)
 Writing concise functional code in python
 
 ![Converting to concise code](https://github.com/muthuishere/python-streams/blob/main/assets/pythonstreams.png?raw=true)
@@ -305,3 +306,7 @@ Everything has been written with built-in modules, Because of very hard fights
 with <a href="https://github.com/yawpitch/">yawpitch</a>. I started taking performance,space complexity seriously.
 Thanks for the extremely valuable suggestions. I would like to appreciate him for all his suggestions
 
+## Community
+
+Questions, ideas, or built something with this? Join **[AgentNexus](https://discord.gg/V9C2kvHC8D)** — a Discord
+for people building with AI agents and open tools. This project lives in **#other-tools**.
