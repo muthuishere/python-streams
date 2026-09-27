@@ -94,6 +94,16 @@ class TestOperators(TestCase):
                 bitwise_operator(5.0)
             self.assertIn("unsupported operand type(s)", str(context.exception))
 
+    def test_sub_and_lt_operators_subtract_and_compare(self):
+        self.assertEqual(4, (item - 1)(5))
+        self.assertEqual(4, (item['n'] - 1)({'n': 5}))
+        with self.assertRaises(TypeError):
+            (item - 1)(None)
+        self.assertTrue((item < 3)(2))
+        self.assertFalse((item < 3)(5))
+        with self.assertRaises(TypeError):
+            (item < 3)(None)
+
 
 def test_value_map(self):
     results = (Stream
