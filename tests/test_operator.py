@@ -84,6 +84,16 @@ class TestOperators(TestCase):
         with self.assertRaises(ZeroDivisionError):
             floor_divide_by_zero(5)
 
+    def test_bitwise_operators_reject_floats_only_when_called(self):
+        self.assertEqual(1, (item & 3)(5))
+        self.assertEqual(7, (item | 3)(5))
+        self.assertEqual(6, (item ^ 3)(5))
+        self.assertEqual(1, (item & True)(5))
+        for bitwise_operator in (item & 3, item | 3, item ^ 3):
+            with self.assertRaises(TypeError) as context:
+                bitwise_operator(5.0)
+            self.assertIn("unsupported operand type(s)", str(context.exception))
+
 
 def test_value_map(self):
     results = (Stream
