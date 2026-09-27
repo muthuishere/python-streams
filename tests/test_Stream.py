@@ -344,3 +344,34 @@ class TestStream(BaseUnitTest):
         falsy_handler = FalsyHandler()
         self.assertIsNone(failing_stream().catchAll(falsy_handler).asSingle())
         self.assertEqual(1, len(falsy_handler.errors))
+
+    def test_a_map_failure_escapes_before_the_catch_all_handler(self):
+        errors = []
+
+        def catch_all_exception(error_data):
+            errors.append(error_data)
+
+        with self.assertRaises(KeyError):
+            (Stream
+             .create(get_users())
+             .filter(lambda user: user['gender'] == 'Male')
+             .map(lambda user: user['salaryv'])
+             .catchAll(catch_all_exception)
+             .asList())
+        self.assertEqual([], errors)
+
+        (Stream
+         .create(get_users())
+         .filter(lambda user: user['gender'] == 'Male')
+         .map(lambda user: user['salaryv'])
+         .reduce(operator.add)
+         .catchAll(catch_all_exception)
+         .asSingle())
+        self.assertEqual(1, len(errors))
+
+        def failing_peek(value):
+            raise ValueError('peek failed')
+
+        with self.assertRaises(ValueError):
+            Stream.create([1, 2]).peek(failing_peek).catchAll(catch_all_exception).asList()
+        self.assertEqual(1, len(errors))
