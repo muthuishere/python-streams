@@ -305,3 +305,42 @@ class TestStream(BaseUnitTest):
 
         with self.assertRaises(TypeError):
             Stream.create(None).stream()
+
+    def test_catch_all_without_a_handler_raises_the_wrapped_error_dict(self):
+        def failing_stream():
+            return (Stream
+                    .create(get_users())
+                    .filter(lambda user: user['gender'] == 'Male')
+                    .map(lambda user: user['salaryv'])
+                    .reduce(operator.add))
+
+        with self.assertRaises(Exception) as context:
+            failing_stream().asSingle()
+        error_data = context.exception.args[0]
+        self.assertEqual(Exception, type(context.exception))
+        self.assertEqual("<class 'KeyError'>Error while Executing Function ", error_data['error'])
+        self.assertEqual(('salaryv',), error_data['args'])
+        self.assertIsInstance(error_data['exception'], KeyError)
+        self.assertEqual(['args', 'currentdata', 'error', 'exception', 'function-data'], sorted(error_data.keys()))
+
+        with self.assertRaises(Exception) as context:
+            failing_stream().catchAll(None).asSingle()
+        self.assertEqual("<class 'KeyError'>Error while Executing Function ", context.exception.args[0]['error'])
+
+        with self.assertRaises(TypeError) as context:
+            failing_stream().catchAll(0).asSingle()
+        self.assertEqual("'int' object is not callable", str(context.exception))
+
+        class FalsyHandler(object):
+            def __init__(self):
+                self.errors = []
+
+            def __bool__(self):
+                return False
+
+            def __call__(self, error_data):
+                self.errors.append(error_data)
+
+        falsy_handler = FalsyHandler()
+        self.assertIsNone(failing_stream().catchAll(falsy_handler).asSingle())
+        self.assertEqual(1, len(falsy_handler.errors))
