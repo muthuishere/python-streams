@@ -59,6 +59,13 @@ class TestOperators(TestCase):
         self.assertFalse(item.isodd(2))
         self.assertTrue(item.isodd(-3))
 
+    # BUG: operators.py:25 repeats the isodd comparison, so iseven reports odd numbers as even.
+    @unittest.expectedFailure
+    def test_iseven_with_even_and_odd_numbers(self):
+        self.assertTrue(item.iseven(0))
+        self.assertTrue(item.iseven(2))
+        self.assertFalse(item.iseven(3))
+
 
 def test_value_map(self):
     results = (Stream
