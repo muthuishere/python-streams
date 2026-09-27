@@ -9,6 +9,7 @@ import cProfile
 import pstats
 
 from streams.Stream import Stream
+from streams.utilities import generator_from_list
 
 
 class TestStream(BaseUnitTest):
@@ -276,3 +277,31 @@ class TestStream(BaseUnitTest):
         self.assertIn('Alisha Solid Women s Cycling Shorts', product_names)
         self.assertIn(5, rating_values)
         self.assertIn(1, rating_values)
+
+    def test_stream_is_lazy_and_gives_each_caller_its_own_partials(self):
+        pulled_values = []
+
+        def source():
+            for value in [1, 2, 3]:
+                pulled_values.append(value)
+                yield value
+
+        stream_of_numbers = Stream.create(source())
+        child_stream = stream_of_numbers.stream()
+        self.assertEqual([], pulled_values)
+        self.assertEqual([1, 2, 3], child_stream.asList())
+        self.assertEqual([1, 2, 3], pulled_values)
+        self.assertEqual([1, 2, 3], stream_of_numbers.asList())
+
+        stream_with_map = Stream.create([1, 2, 3])
+        child_stream = stream_with_map.stream()
+        stream_with_map.map(lambda value: value * 10)
+        self.assertEqual([1, 2, 3], child_stream.asList())
+        self.assertEqual([10, 20, 30], stream_with_map.stream().asList())
+
+        consumed_stream = Stream.create(generator_from_list([1, 2, 3]))
+        self.assertEqual([1, 2, 3], consumed_stream.asList())
+        self.assertEqual([], consumed_stream.stream().asList())
+
+        with self.assertRaises(TypeError):
+            Stream.create(None).stream()
