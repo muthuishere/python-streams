@@ -71,6 +71,19 @@ class TestOperators(TestCase):
             item['a']['b']({'a': {'b': 5}})
         self.assertEqual(5, item['a']['b']({'b': 5}))
 
+    def test_division_by_zero_is_raised_when_the_quotient_is_computed(self):
+        self.assertEqual(2.5, (item / 2)(5))
+        self.assertEqual(2, (item // 2)(5))
+        self.assertEqual(-3, (item // 2)(-5))
+        self.assertEqual(2.0, (item // 2)(5.0))
+        divide_by_zero = item / 0
+        self.assertTrue(callable(divide_by_zero))
+        with self.assertRaises(ZeroDivisionError):
+            divide_by_zero(5)
+        floor_divide_by_zero = item // 0
+        with self.assertRaises(ZeroDivisionError):
+            floor_divide_by_zero(5)
+
 
 def test_value_map(self):
     results = (Stream
