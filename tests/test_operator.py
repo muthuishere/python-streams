@@ -1,4 +1,5 @@
 import operator
+import unittest
 from unittest import TestCase
 
 from shared.products import get_products
@@ -47,6 +48,61 @@ class TestOperators(TestCase):
                    )
         self.assertEqual(results, [1, 3, 5, 7, 9])
 
+    def test_filter_with_isodd_operator_from_1_to_10(self):
+        results = (Stream
+                   .create(range(10))
+                   .filter(item.isodd)
+                   .asList())
+        self.assertEqual(results, [1, 3, 5, 7, 9])
+        self.assertFalse(item.isodd(0))
+        self.assertTrue(item.isodd(1))
+        self.assertFalse(item.isodd(2))
+        self.assertTrue(item.isodd(-3))
+
+    # BUG: operators.py:25 repeats the isodd comparison, so iseven reports odd numbers as even.
+    @unittest.expectedFailure
+    def test_iseven_with_even_and_odd_numbers(self):
+        self.assertTrue(item.iseven(0))
+        self.assertTrue(item.iseven(2))
+        self.assertFalse(item.iseven(3))
+
+    def test_chained_subscript_keeps_only_the_last_key(self):
+        with self.assertRaises(KeyError):
+            item['a']['b']({'a': {'b': 5}})
+        self.assertEqual(5, item['a']['b']({'b': 5}))
+
+    def test_division_by_zero_is_raised_when_the_quotient_is_computed(self):
+        self.assertEqual(2.5, (item / 2)(5))
+        self.assertEqual(2, (item // 2)(5))
+        self.assertEqual(-3, (item // 2)(-5))
+        self.assertEqual(2.0, (item // 2)(5.0))
+        divide_by_zero = item / 0
+        self.assertTrue(callable(divide_by_zero))
+        with self.assertRaises(ZeroDivisionError):
+            divide_by_zero(5)
+        floor_divide_by_zero = item // 0
+        with self.assertRaises(ZeroDivisionError):
+            floor_divide_by_zero(5)
+
+    def test_bitwise_operators_reject_floats_only_when_called(self):
+        self.assertEqual(1, (item & 3)(5))
+        self.assertEqual(7, (item | 3)(5))
+        self.assertEqual(6, (item ^ 3)(5))
+        self.assertEqual(1, (item & True)(5))
+        for bitwise_operator in (item & 3, item | 3, item ^ 3):
+            with self.assertRaises(TypeError) as context:
+                bitwise_operator(5.0)
+            self.assertIn("unsupported operand type(s)", str(context.exception))
+
+    def test_sub_and_lt_operators_subtract_and_compare(self):
+        self.assertEqual(4, (item - 1)(5))
+        self.assertEqual(4, (item['n'] - 1)({'n': 5}))
+        with self.assertRaises(TypeError):
+            (item - 1)(None)
+        self.assertTrue((item < 3)(2))
+        self.assertFalse((item < 3)(5))
+        with self.assertRaises(TypeError):
+            (item < 3)(None)
 
 
 def test_value_map(self):

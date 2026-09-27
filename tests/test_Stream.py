@@ -9,6 +9,7 @@ import cProfile
 import pstats
 
 from streams.Stream import Stream
+from streams.utilities import generator_from_list
 
 
 class TestStream(BaseUnitTest):
@@ -276,3 +277,116 @@ class TestStream(BaseUnitTest):
         self.assertIn('Alisha Solid Women s Cycling Shorts', product_names)
         self.assertIn(5, rating_values)
         self.assertIn(1, rating_values)
+
+    def test_stream_is_lazy_and_gives_each_caller_its_own_partials(self):
+        pulled_values = []
+
+        def source():
+            for value in [1, 2, 3]:
+                pulled_values.append(value)
+                yield value
+
+        stream_of_numbers = Stream.create(source())
+        child_stream = stream_of_numbers.stream()
+        self.assertEqual([], pulled_values)
+        self.assertEqual([1, 2, 3], child_stream.asList())
+        self.assertEqual([1, 2, 3], pulled_values)
+        self.assertEqual([1, 2, 3], stream_of_numbers.asList())
+
+        stream_with_map = Stream.create([1, 2, 3])
+        child_stream = stream_with_map.stream()
+        stream_with_map.map(lambda value: value * 10)
+        self.assertEqual([1, 2, 3], child_stream.asList())
+        self.assertEqual([10, 20, 30], stream_with_map.stream().asList())
+
+        consumed_stream = Stream.create(generator_from_list([1, 2, 3]))
+        self.assertEqual([1, 2, 3], consumed_stream.asList())
+        self.assertEqual([], consumed_stream.stream().asList())
+
+        with self.assertRaises(TypeError):
+            Stream.create(None).stream()
+
+    def test_catch_all_without_a_handler_raises_the_wrapped_error_dict(self):
+        def failing_stream():
+            return (Stream
+                    .create(get_users())
+                    .filter(lambda user: user['gender'] == 'Male')
+                    .map(lambda user: user['salaryv'])
+                    .reduce(operator.add))
+
+        with self.assertRaises(Exception) as context:
+            failing_stream().asSingle()
+        error_data = context.exception.args[0]
+        self.assertEqual(Exception, type(context.exception))
+        self.assertEqual("<class 'KeyError'>Error while Executing Function ", error_data['error'])
+        self.assertEqual(('salaryv',), error_data['args'])
+        self.assertIsInstance(error_data['exception'], KeyError)
+        self.assertEqual(['args', 'currentdata', 'error', 'exception', 'function-data'], sorted(error_data.keys()))
+
+        with self.assertRaises(Exception) as context:
+            failing_stream().catchAll(None).asSingle()
+        self.assertEqual("<class 'KeyError'>Error while Executing Function ", context.exception.args[0]['error'])
+
+        with self.assertRaises(TypeError) as context:
+            failing_stream().catchAll(0).asSingle()
+        self.assertEqual("'int' object is not callable", str(context.exception))
+
+        class FalsyHandler(object):
+            def __init__(self):
+                self.errors = []
+
+            def __bool__(self):
+                return False
+
+            def __call__(self, error_data):
+                self.errors.append(error_data)
+
+        falsy_handler = FalsyHandler()
+        self.assertIsNone(failing_stream().catchAll(falsy_handler).asSingle())
+        self.assertEqual(1, len(falsy_handler.errors))
+
+    def test_a_map_failure_escapes_before_the_catch_all_handler(self):
+        errors = []
+
+        def catch_all_exception(error_data):
+            errors.append(error_data)
+
+        with self.assertRaises(KeyError):
+            (Stream
+             .create(get_users())
+             .filter(lambda user: user['gender'] == 'Male')
+             .map(lambda user: user['salaryv'])
+             .catchAll(catch_all_exception)
+             .asList())
+        self.assertEqual([], errors)
+
+        (Stream
+         .create(get_users())
+         .filter(lambda user: user['gender'] == 'Male')
+         .map(lambda user: user['salaryv'])
+         .reduce(operator.add)
+         .catchAll(catch_all_exception)
+         .asSingle())
+        self.assertEqual(1, len(errors))
+
+        def failing_peek(value):
+            raise ValueError('peek failed')
+
+        with self.assertRaises(ValueError):
+            Stream.create([1, 2]).peek(failing_peek).catchAll(catch_all_exception).asList()
+        self.assertEqual(1, len(errors))
+
+    def test_skip_rejects_invalid_numbers_lazily_and_reads_none_as_zero(self):
+        self.assertEqual([0, 1, 2], Stream.create([0, 1, 2]).skip(0).asList())
+        self.assertEqual([0, 1, 2], Stream.create([0, 1, 2]).skip(None).asList())
+        self.assertEqual([1, 2], Stream.create([0, 1, 2]).skip(True).asList())
+        self.assertEqual([], Stream.create([0, 1]).skip(2).asList())
+
+        for invalid_number in (-1, 2.5, 'a', 2 ** 64):
+            stream_with_invalid_skip = Stream.create([0, 1, 2]).skip(invalid_number)
+            with self.assertRaises(Exception) as context:
+                stream_with_invalid_skip.asList()
+            error_data = context.exception.args[0]
+            self.assertEqual("<class 'ValueError'>Error while Executing Function ", error_data['error'])
+            self.assertEqual(('Indices for islice() must be None or an integer: 0 <= x <= sys.maxsize.',),
+                             error_data['args'])
