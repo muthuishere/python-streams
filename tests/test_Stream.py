@@ -375,3 +375,18 @@ class TestStream(BaseUnitTest):
         with self.assertRaises(ValueError):
             Stream.create([1, 2]).peek(failing_peek).catchAll(catch_all_exception).asList()
         self.assertEqual(1, len(errors))
+
+    def test_skip_rejects_invalid_numbers_lazily_and_reads_none_as_zero(self):
+        self.assertEqual([0, 1, 2], Stream.create([0, 1, 2]).skip(0).asList())
+        self.assertEqual([0, 1, 2], Stream.create([0, 1, 2]).skip(None).asList())
+        self.assertEqual([1, 2], Stream.create([0, 1, 2]).skip(True).asList())
+        self.assertEqual([], Stream.create([0, 1]).skip(2).asList())
+
+        for invalid_number in (-1, 2.5, 'a', 2 ** 64):
+            stream_with_invalid_skip = Stream.create([0, 1, 2]).skip(invalid_number)
+            with self.assertRaises(Exception) as context:
+                stream_with_invalid_skip.asList()
+            error_data = context.exception.args[0]
+            self.assertEqual("<class 'ValueError'>Error while Executing Function ", error_data['error'])
+            self.assertEqual(('Indices for islice() must be None or an integer: 0 <= x <= sys.maxsize.',),
+                             error_data['args'])
