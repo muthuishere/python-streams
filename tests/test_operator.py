@@ -1,4 +1,5 @@
 import operator
+import unittest
 from unittest import TestCase
 
 from shared.products import get_products
@@ -47,6 +48,16 @@ class TestOperators(TestCase):
                    )
         self.assertEqual(results, [1, 3, 5, 7, 9])
 
+    def test_filter_with_isodd_operator_from_1_to_10(self):
+        results = (Stream
+                   .create(range(10))
+                   .filter(item.isodd)
+                   .asList())
+        self.assertEqual(results, [1, 3, 5, 7, 9])
+        self.assertFalse(item.isodd(0))
+        self.assertTrue(item.isodd(1))
+        self.assertFalse(item.isodd(2))
+        self.assertTrue(item.isodd(-3))
 
 
 def test_value_map(self):
