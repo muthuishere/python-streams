@@ -66,6 +66,11 @@ class TestOperators(TestCase):
         self.assertTrue(item.iseven(2))
         self.assertFalse(item.iseven(3))
 
+    def test_chained_subscript_keeps_only_the_last_key(self):
+        with self.assertRaises(KeyError):
+            item['a']['b']({'a': {'b': 5}})
+        self.assertEqual(5, item['a']['b']({'b': 5}))
+
 
 def test_value_map(self):
     results = (Stream
