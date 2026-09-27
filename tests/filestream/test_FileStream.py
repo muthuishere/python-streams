@@ -94,3 +94,17 @@ class TestFileStream(BaseUnitTest):
              .asCSV(full_path_of_semicolon_csv, delimiter=';'))
             self.assertFileContents(full_path_of_semicolon_csv,
                                     "Id;Male name;Female name\n1;Liam;Olivia\n2;Noah;Emma\n3;Adam;Ava\n")
+
+    def test_as_csv_writer_is_chosen_by_the_first_value(self):
+        with tempfile.TemporaryDirectory() as folder:
+            full_path_of_dict_rows_csv = os.path.join(folder, "dict_rows.csv")
+            (FileStream(data=generator_from_list([{'Id': '1', 'name': 'Liam'},
+                                                  {'Id': '2', 'name': 'Noah'}]))
+             .asCSV(full_path_of_dict_rows_csv))
+            self.assertFileContents(full_path_of_dict_rows_csv, "Id,name\n1,Liam\n2,Noah\n")
+
+            full_path_of_scalar_rows_csv = os.path.join(folder, "scalar_rows.csv")
+            written = (FileStream(data=generator_from_list(["Olivia", "Emma"]))
+                       .asCSV(full_path_of_scalar_rows_csv, delimiter=';'))
+            self.assertTrue(written)
+            self.assertFileContents(full_path_of_scalar_rows_csv, "Olivia\nEmma")
